@@ -5,58 +5,107 @@
 - Versioning system
 - philosophy how to work
     - asynchronous work
-    - splitting in handle working packages 
+    - split work into small packages / tickets
+
 - commits
 - branches 
+- tags
 
-- local: copy on your machine
-- remote: state on server, usually called origin. 
+- local: clone of the repo on your machine (entire history, all branches, tags, ...)
+- remote: repo on server, usually called origin.
    - There can be multiple remotes 
 
-## branches 
+### branches 
 
-- 1 main branch, usually main or master
-- multiple feature branches 
+- 1 main branch, usually main (deprecated: master)
+- multiple short-lived feature branches: one per unit of work
+- dirt-cheap
 
 - always work on feature branches!
 - once your changes are reviewed, feature branch is merged to main 
 
-## how to commit 
+### tags
+
+- long lived pointer to commit
+- usually used for marking release versions
+
+
+### commits
+
+- commit = difference relative to parent(s)
 
 - 1 commit = 1 logical unit
-- changes that belong togehter
-- can it rebased properly?
+- changes that belong together
+- "will this commit mess-up my future rebases?" 
+    - formatting is a separate commit
+    - renames, moving, add/delete src-files
+    - Note: Windows does not differentiate between `Main.qml` and `main.qml`, git does!
+
+- each commit should compile
+
 - working on larger features: 
-    - commit each file separately-> squash later
+    - commit each subfeature separately -> squash later
+
 - commit message:
-    - descriptive
-    - prefix: fixup, add, refactor 
+    - descriptive: Bad: "Changed Param to 42", Good: "Solve the P=NP Problem"
+    - prefix: fixup, add, refactor, `<subfeatureName>`, `<ticketNumber>`
+    - Team-specific convention may apply
+    - Format: https://stackoverflow.com/questions/2290016/git-commit-messages-50-72-formatting
 
-- commit regulary
+```
+Summary (50)
+
+Full description (72 per line)
+```
+
+
+- commit regularly
     - make sure you can remember the changes done
-    - at the end of the day your branch should not contain any uncommited changes
-    - push to origin. Local is not enough
+        - leaving the topic -> commit your changes
+        - avoid end of day (worst case: week) commit orgy
+    - at the end of the day your branch should not contain any uncommitted and un-pushed changes
 
-
+```
 git add filename ...
 git commit -m msg
-git push 
+git push
+```
+
+.. Example:
+    - Neue Datei erstellen
+    - und comitten
+    - push
+
+## work flow
+
+### reverting
+
+- revert already public (pushed) changes
+
+- usage: when you have to avoid `push -f`
+
+```
+git revert <commit>
+```
+
 
 ### amending 
 
-Add changes to the latest local commit 
+- Add changes to the latest local commit 
 
+```
 git add ...
 git commit --amend 
+```
 
-## rebasing 
+### rebasing 
 
 - keep your branch up to date on a daily base
 - start in the day: rebase working branch on upstream main:
     - git fetch origin main:main
     - git rebase main 
 
-### solving conflicts 
+#### solving conflicts 
 
 - go over each commit an solve it
     - keep your changes
@@ -74,9 +123,7 @@ git rebase -i HEAD~20
 
 - if there are conflicts -> rethink your commit history 
 
-## tricks 
 
-Useful git commands 
 
 ### stash / pop 
 
@@ -113,7 +160,7 @@ git rebase --continue
 - cherry-pick them 
 
 ```
-Git cherry-pick sha 
+git cherry-pick <commit> 
 ```
 
 For MR:
@@ -121,8 +168,28 @@ For MR:
 git checkout main
 git pull
 git checkout -b superFeature
-git cherry-pick sha
+git cherry-pick <commit>
 git push --set-upstream origin super Feature 
 ```
 
 Create MR on gitlab/server
+
+
+
+
+
+## tools
+
+- tortoise
+- vscode plugin: gitLens, gitGraph, Git supercharged
+
+
+
+## Advanced git functions
+
+- submodule
+- reflog
+- worktree
+- lfs (immer wieder umstritten)
+
+
