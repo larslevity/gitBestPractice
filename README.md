@@ -33,15 +33,29 @@
 ### commits
 
 - commit = difference relative to parent(s)
-
 - 1 commit = 1 logical unit
 - changes that belong together
+- each commit should compile
+
+## work flow
+
+### staging
+
+- collect changes for commit
+
+```
+git add <fileName> [...]    # stage specified file
+git add -i                  # stage only parts of a changed file
+git add .                   # stage all git-known files
+```
+
+### committing
+
 - "will this commit mess-up my future rebases?" 
     - formatting is a separate commit
     - renames, moving, add/delete src-files
     - Note: Windows does not differentiate between `Main.qml` and `main.qml`, git does!
 
-- each commit should compile
 
 - working on larger features: 
     - commit each subfeature separately -> squash later
@@ -58,7 +72,6 @@ Summary (50)
 Full description (72 per line)
 ```
 
-
 - commit regularly
     - make sure you can remember the changes done
         - leaving the topic -> commit your changes
@@ -66,44 +79,90 @@ Full description (72 per line)
     - at the end of the day your branch should not contain any uncommitted and un-pushed changes
 
 ```
-git add filename ...
 git commit -m msg
 git push
 ```
 
-.. Example:
-    - Neue Datei erstellen
-    - und comitten
+.. Example::
+    - `featureBranch` erstellen
+    - Neue Datei erstellen `main.cpp`
+    - commit
+    - push
+    - main function commit -> suitable msg
     - push
 
-## work flow
 
 ### reverting
 
 - revert already public (pushed) changes
-
 - usage: when you have to avoid `push -f`
 
 ```
 git revert <commit>
+git push
 ```
+
+.. Example::
+    - Letzten commit reverten
+    - Revert reverten
+
 
 
 ### amending 
 
-- Add changes to the latest local commit 
+- Add changes to the latest **local** commit 
+- And/Or change commit message of latest **local** commit
 
 ```
 git add ...
 git commit --amend 
+git push
 ```
+
+.. Example::
+    - Hello World -> Hallo Welt
+    - amend to last commit
+
+
+### handling parallel work
+
+```
+git status  # clean
+git checkout main
+git checkout -b superUrgentFeatureRequest
+# implement
+git add .
+git commit -m "add: superUrgentFeatureRequest"
+git push --set-upstream origin superUrgentFeatureRequest
+```
+
+
+### merging
+
+- create MR on server
+- Find somebody to review
+- once review is finished, merge!
+
 
 ### rebasing 
 
 - keep your branch up to date on a daily base
 - start in the day: rebase working branch on upstream main:
-    - git fetch origin main:main
-    - git rebase main 
+
+
+```
+git fetch origin main:main  # start of the day
+git checkout featureBranch
+git rebase main 
+```
+
+
+.. Example::
+    - Dennis übersetzt in Italienisch
+    - MR -> merge
+    - amend to last commit
+
+
 
 #### solving conflicts 
 
