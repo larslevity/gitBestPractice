@@ -83,7 +83,8 @@ git commit -m msg
 git push
 ```
 
-.. Example::
+#### Example
+
     - `featureBranch` erstellen
     - Neue Datei erstellen `main.cpp`
     - commit
@@ -102,7 +103,7 @@ git revert <commit>
 git push
 ```
 
-.. Example::
+#### Example
     - Letzten commit reverten
     - Revert reverten
 
@@ -119,7 +120,7 @@ git commit --amend
 git push
 ```
 
-.. Example::
+#### Example
     - Hello World -> Hallo Welt
     - amend to last commit
 
@@ -132,9 +133,16 @@ git checkout main
 git checkout -b superUrgentFeatureRequest
 # implement
 git add .
-git commit -m "add: superUrgentFeatureRequest"
+git commit -m "add: superUrgentFeature"
 git push --set-upstream origin superUrgentFeatureRequest
 ```
+
+#### Example
+    - Neue Branch
+    - Add Readme
+    - commit
+    - push
+    - merge
 
 
 ### merging
@@ -147,21 +155,19 @@ git push --set-upstream origin superUrgentFeatureRequest
 ### rebasing 
 
 - keep your branch up to date on a daily base
-- start in the day: rebase working branch on upstream main:
+- start in the day: rebase working branch on upstream main
 
 
 ```
 git fetch origin main:main  # start of the day
 git checkout featureBranch
-git rebase main 
+git rebase main
 ```
 
-
-.. Example::
-    - Dennis übersetzt in Italienisch
-    - MR -> merge
-    - amend to last commit
-
+#### Example
+    - back to featureBranch
+    - rebase on updated main
+    - merge
 
 
 #### solving conflicts 
@@ -172,22 +178,26 @@ git rebase main
     - or both
 - if there are many conflicts your commit history might be optimizable 
 
-### interactive rebase 
+#### Example
+    - Dennis macht Türkisch
+    - Lars macht Englisch
+    - Dennis merged
+    - Lars rebased -> kaputt
 
-- before creating a merge request, clean up your branch
-- first reorder your commits and
-- squash commits that belong togehter 
 
-git rebase -i HEAD~20 
 
-- if there are conflicts -> rethink your commit history 
+
+---
+break
+
+---
 
 
 
 ### stash / pop 
 
-- Work is in progress but a collegue requests a immidiate  review of MR in same repo
-- stash your uncommited work to be able to change the branch 
+- Work is in progress but a colleague requests a immediate  review of MR in same repo
+- stash your uncommitted work to be able to change the branch 
 
 ```
 git stash
@@ -196,21 +206,9 @@ git checkout colleguesbranch
 git checkout mybranch
 git stash pop 
 ```
+
 Note: you can pop changes where ever you want, also on another branch
 
-
-### reset 
-
-- you are unhappy with a commit
-- might want to split it in multiple commits 
-
-```
-git rebase -i HEAD~20
-# Mark the corresponding commit to stop here
-git reset HEAD~
-# commit as you now know it better
-git rebase --continue
-```
 
 ### cherry-pick 
 
@@ -228,12 +226,10 @@ git checkout main
 git pull
 git checkout -b superFeature
 git cherry-pick <commit>
-git push --set-upstream origin super Feature 
+git push --set-upstream origin superFeature 
 ```
 
 Create MR on gitlab/server
-
-
 
 
 
@@ -252,3 +248,30 @@ Create MR on gitlab/server
 - lfs (immer wieder umstritten)
 
 
+### interactive rebase 
+
+- before creating a merge request, clean up your branch
+- first reorder your commits and
+- squash commits that belong together 
+
+```
+git rebase -i HEAD~<numCommits>
+# tidy up history
+git push -f  #--force-with-lease  # use careful
+```
+
+- if there are conflicts -> rethink your commit history 
+
+
+### reset 
+
+- you are unhappy with a commit
+- might want to split it in multiple commits 
+
+```
+git rebase -i HEAD~<numCommits>
+# Mark the corresponding commit to stop here
+git reset HEAD~
+# commit as you now know it better
+git rebase --continue
+```
