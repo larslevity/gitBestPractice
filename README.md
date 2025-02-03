@@ -1,6 +1,8 @@
 # git best practice 
 
-## what is git 
+## Workshop Part 1
+
+### what is git 
 
 - Versioning system
 - philosophy how to work
@@ -22,6 +24,9 @@
 - dirt-cheap
 
 - always work on feature branches!
+
+![one does not simply commit on main](commit-on-main.jpg)
+
 - once your changes are reviewed, feature branch is merged to main 
 
 ### tags
@@ -114,7 +119,7 @@ git push
 - Add changes to the latest **local** commit 
 - And/Or change commit message of latest **local** commit
 
-```
+```bash
 git add ...
 git commit --amend 
 git push
@@ -125,114 +130,210 @@ git push
     - amend to last commit
 
 
-### handling parallel work
 
-```
-git status  # clean
-git checkout main
-git checkout -b superUrgentFeatureRequest
-# implement
-git add .
-git commit -m "add: superUrgentFeature"
-git push --set-upstream origin superUrgentFeatureRequest
-```
+## Workshop Part 2
 
-#### Example
-    - Neue Branch
-    - Add Readme
-    - commit
-    - push
-    - merge
-
-
-### merging
-
-- create MR on server
-- Find somebody to review
-- once review is finished, merge!
-
-
-### rebasing 
-
-- keep your branch up to date on a daily base
-- start in the day: rebase working branch on upstream main
-
-
-```
-git fetch origin main:main  # start of the day
-git checkout featureBranch
-git rebase main
-```
-
-#### Example
-    - back to featureBranch
-    - rebase on updated main
-    - merge
-
-
-#### solving conflicts 
-
-- go over each commit an solve it
-    - keep your changes
-    - or their changes
-    - or both
-- if there are many conflicts your commit history might be optimizable 
-
-#### Example
-    - Dennis macht Türkisch
-    - Lars macht Englisch
-    - Dennis merged
-    - Lars rebased -> kaputt
-
-
-
-
----
-break
-
----
-
-
-
-### stash / pop 
-
-- Work is in progress but a colleague requests a immediate  review of MR in same repo
-- stash your uncommitted work to be able to change the branch 
-
-```
-git stash
-git checkout colleguesbranch
-# do your review
-git checkout mybranch
-git stash pop 
-```
-
-Note: you can pop changes where ever you want, also on another branch
+- Recap Part 1
+    - commit msgs
+    - amending
+    - ...
 
 
 ### cherry-pick 
 
-- Some commit(s) might be useful in your current branch, but they are not merged yet?
-- A commit turns out to be worth a stand alone MR?
+*Situation:*
+- Some commit(s) might be useful in your current branch, but they are not merged yet
+- A commit turns out to be worth a stand alone MR
+
+*Best practice:*
 - cherry-pick them 
 
-```
-git cherry-pick <commit> 
-```
+*Commands:*
 
-For MR:
-```
-git checkout main
-git pull
-git checkout -b superFeature
-git cherry-pick <commit>
-git push --set-upstream origin superFeature 
+```bash
+user@pc:~ (featureBranch)
+    git cherry-pick <commit hash> 
 ```
 
-Create MR on gitlab/server
+### stash / pop 
+
+*Situation:*
+- Uncommitted changes but need to checkout a different branch in same repo in order to quickly test something
+
+*Best practice:*
+- stash your uncommitted work to be able to change the branch
+- at most one stash and **not** for long
+
+
+*Commands:*
+
+```bash
+user@pc:~ (featureBranch)
+    git stash
+    git checkout main
+user@pc:~ (main)
+    git pull
+    # do the test
+    git checkout featureBranch
+user@pc:~ (featureBranch)
+    git stash pop 
+```
+
+*Note:* 
+- you can pop changes where ever you want, also on another branch
+- stashing adds weird commits to your history
+
+
+### handling parallel work
+
+*Situation:*
+- You are working on `featureBranch`
+- Already a couple of commits down
+- While working on a feature, you are forced to implement a super urgent other feature in same repo
+
+*Best Practice:*
+- make sure your working copy is clean
+- create new branch from `main`
+- after implementation, create MR
+
+*Commands:*
+```bash
+user@pc:~ (featureBranch) 
+    git status  # should be clean
+    git checkout main
+user@pc:~ (main) 
+    git pull # make sure local main is up to date
+    git checkout -b superUrgentFeatureBranch
+
+# [get sh!t done]
+
+user@pc:~ (superUrgentFeatureBranch)
+    git add .
+    git commit -m "add: superUrgentFeature"
+    git push --set-upstream origin superUrgentFeatureBranch
+```
+
+### merging
+
+
+*Situation:*
+
+- You want to merge the super urgent feature
+
+*Best Practice:*
+
+- Only merge to `main` via MR remote server (i.e. gitlab). 
+- You create an MR on git-server 
+- You find a reviewer for your MR
+- `superUrgentFeatureBranch` is merged after review
+
+*Demo*
+
+- [Gitlab repository graph](https://gitlab.marinom.de/marinom/stammtisch/git-best-practices/-/network/main?ref_type=heads)
+- vscode gitGraph
+
+
+### rebasing (w/o conflicts)
+
+*Situation:*
+- Upstream main was updated. 
+
+
+*Best practice:*
+
+- Rebase your working branch(es) on a daily base
+- why?
+    - potential conflicts are more easily solved if they come in small pieces
+    - ancient branches are prone to bit rotting
+    - a linear history is (more) comprehensible
+    - nobody likes this: 
+
+![please do not](gitGraph.png)
+
+
+*Commands:*
+
+```bash
+user@pc:~ (superUrgentFeatureBranch)
+    # update main, delete stale tracking branches
+    git fetch origin --prune main:main
+    git checkout featureBranch
+user@pc:~ (featureBranch)
+    git branch -d superUrgentFeatureBranch # delete local branch
+    git rebase main
+```
+
+
+### rebasing (w conflicts)
+
+*Situation:*
+- Upstream main was updated
+- You rebase your working branch
+- Your working branch adds conflicting changes
+
+*Best practice:*
+- abort rebase
+- backup your working branch (pushing `git push` or local copy `git checkout -b backup`)
+- rebase again
+- grab coffee and solve the conflicts
+- delete backup (`push --force-with-lease` or `git branch -D backup`)
+
+*Example:*
+
+- Dennis does turkish
+- Lars does english
+- Dennis merged
+- Lars rebased -> kaputt
+
+
+*Commands:*
+
+```bash
+user@pc:~ (featureBranch)
+    # update main, delete stale tracking branches
+    git fetch origin --prune main:main
+    git rebase main
+    # [conflicting!]
+    git rebase --abort
+    # backup and git fetch coffee
+    git rebase main
+    git add # ...
+    git commit # ...
+    git rebase --continue
+```
+
+*Take away:*
+- if there are many conflicts your commit history might be optimizable
+
+
+### interactive rebase 
+
+*Situation:*
+- You want to create a MR with a clean commit history
+
+
+*Best practice:*
+- reorder your commits and
+- squash commits that belong together 
+
+*Commands:*
+
+```bash
+user@pc:~ (featureBranch)
+    git rebase -i HEAD~<numCommits> # Head - num commits
+    git rebase -i <commit hash> # till this commit - non-inclusive
+    git rebase -i <branchName> # till this branch ptr - non-inclusive
+    # tidy up history
+    git push -f  #--force-with-lease  # use with care
+```
+
+*Take away:*
+- if there are many conflicts, rethink your commit history 
+- rewriting history helps you to clean up your mess - if there is any ;)
 
 
 
+<!-- 
 ## tools
 
 - tortoise
@@ -248,20 +349,6 @@ Create MR on gitlab/server
 - lfs (immer wieder umstritten)
 
 
-### interactive rebase 
-
-- before creating a merge request, clean up your branch
-- first reorder your commits and
-- squash commits that belong together 
-
-```
-git rebase -i HEAD~<numCommits>
-# tidy up history
-git push -f  #--force-with-lease  # use careful
-```
-
-- if there are conflicts -> rethink your commit history 
-
 
 ### reset 
 
@@ -274,4 +361,4 @@ git rebase -i HEAD~<numCommits>
 git reset HEAD~
 # commit as you now know it better
 git rebase --continue
-```
+``` -->
